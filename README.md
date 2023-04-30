@@ -15,7 +15,7 @@ Sorry, All Japanese program...
 * [Download Link](https://github.com/Ay2416/MK8DX-AutoWarRecordSender/archive/refs/heads/main.zip)
 
 ## 注意
-* このbotにはDiscrod apiとMK8DX 150ccラウンジのサイト（[https://www.mk8dx-lounge.com/](https://www.mk8dx-lounge.com/)）のapiを使用しています。そのため、main.pyの19行目の値をいじることで更新間隔を短くしたりすることができますが、あまりにも小さくし過ぎるとapiサーバーに負荷をかけすぎてしまう可能背があるため、そこに注意してご使用していただけると幸いです。
+* このbotにはDiscrod apiとMK8DX 150ccラウンジのサイト（[https://www.mk8dx-lounge.com/](https://www.mk8dx-lounge.com/)）のapiを使用しています。そのため、main.pyの19行目の値をいじることで更新間隔を短くしたりすることができますが、あまりにも小さくし過ぎるとapiサーバーに負荷をかけすぎてしまう可能性があるため、そこに注意してご使用していただけると幸いです。
 
 ## 使い方（Discord上）
 下記のスラッシュコマンドを使用して使うことができます。
@@ -32,9 +32,11 @@ Sorry, All Japanese program...
 
 ## 動作確認済み環境
 * Ubuntu 20.04
+
 python 3.8.16
 
 * Windows11
+
 python 3.10.11
 
 ## 使い方（プログラムの動作のさせ方）
