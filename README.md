@@ -40,6 +40,8 @@ python 3.8.16
 python 3.10.11
 
 ## 使い方（プログラムの動作のさせ方）
+※DiscordのBotの作成やトークンの取得はできている前提で説明させていただきます。
+
 1. 最初にPythonをインストールしてください。（導入済みの方は飛ばしていただいて結構です。）
 
 ※もしかしたら導入済みの可能性もありますので、Windowsの場合はコマンドプロンプト、Linuxの場合はターミナルで「python --version」と打ち、「Python 〇.〇.〇」みたいな表記がでれば導入されているかが確認できます。
@@ -67,6 +69,14 @@ python 3.10.11
 * Windowsの場合は簡単な操作でそのディレクトリからコマンドプロンプトを起動する方法があります。 → [Link](https://qiita.com/windows222/items/2ac133a244f4a9527022)
 
 * Linux(Ubuntu)の場合：[Link](https://uxmilk.jp/27431)（簡単に行けそうな方法を見つけようとしたのですが、自分の力では見つけることができませんでした...。）
+
+
+### Botを作成する際、必要となる権限は以下の通りです。
+* Read Messages/View Channels
+
+* Send Messages
+
+* Embed Links
 
 ## ライセンス
 MIT LICENCE↓
