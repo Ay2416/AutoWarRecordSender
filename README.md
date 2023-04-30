@@ -49,7 +49,7 @@ python 3.10.11
 
 3. そしてそのファイルを解凍し、「.env」をテキストエディタで開き、「your_discord_bot_token」という部分にDiscordのBotトークンを入れてください。
 
-※「.env」が見えない場合、隠しファイル扱いとなっている可能性が高いため、下記を参考に表示できるようにしてください。
+  ※「.env」が見えない場合、隠しファイル扱いとなっている可能性が高いため、下記を参考に表示できるようにしてください。
 
 * Windows10：[Link](https://pc-karuma.net/windows-10-show-hidden-files-folders/)
 
@@ -57,12 +57,14 @@ python 3.10.11
 
 * Linux(Ubuntu かつ デスクトップ画面からの操作の場合)：[Link](https://linuxfan.info/show-hidden-files-in-nautilus#toc_id_3)
 
-4. コマンドプロンプトまたは、ターミナルで「main.py」があるディレクトリまで移動し、「python main.py」と打つことでプログラムを開始し、使用することが可能になります。
+4. コマンドプロンプトまたは、ターミナルで「main.py」があるディレクトリまで移動し、「pip install -r requirements.txt
+」を打ってから、「python main.py」と打つことでプログラムを開始し、使用することが可能になります。
+
 ※ディレクトリの移動方法
 
-＊ Windowsの場合は簡単な操作でそのディレクトリからコマンドプロンプトを起動する方法があります。 → [Link](https://qiita.com/windows222/items/2ac133a244f4a9527022)
+* Windowsの場合は簡単な操作でそのディレクトリからコマンドプロンプトを起動する方法があります。 → [Link](https://qiita.com/windows222/items/2ac133a244f4a9527022)
 
-＊ Linux(Ubuntu)の場合：[Link](https://uxmilk.jp/27431)（簡単に行けそうな方法を見つけようとしたのですが、自分の力では見つけることができませんでした...。）
+* Linux(Ubuntu)の場合：[Link](https://uxmilk.jp/27431)（簡単に行けそうな方法を見つけようとしたのですが、自分の力では見つけることができませんでした...。）
 
 ## ライセンス
 MIT LICENCE↓
