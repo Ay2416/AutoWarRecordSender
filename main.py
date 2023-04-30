@@ -16,7 +16,7 @@ import asyncio
 
 # Bot start
 load_dotenv()
-update_time =  300 # 更新間隔を設定（秒）
+update_time =  900 # 更新間隔を設定（秒）
 api_url = "https://www.mk8dx-lounge.com/api/player/details?name="
 JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
 
