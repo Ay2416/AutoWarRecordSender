@@ -11,6 +11,9 @@ Sorry, All Japanese program...
 
   Twitter：[https://twitter.com/Nagaru_ST7](https://twitter.com/Nagaru_ST7)
 
+## Download
+* [Download Link](https://github.com/Ay2416/MK8DX-AutoWarRecordSender/archive/refs/heads/main.zip)
+
 ## 注意
 * このbotにはDiscrod apiとMK8DX 150ccラウンジのサイト（[https://www.mk8dx-lounge.com/](https://www.mk8dx-lounge.com/)）のapiを使用しています。そのため、main.pyの19行目の値をいじることで更新間隔を短くしたりすることができますが、あまりにも小さくし過ぎるとapiサーバーに負荷をかけすぎてしまう可能背があるため、そこに注意してご使用していただけると幸いです。
 
