@@ -74,11 +74,13 @@ python 3.10.11
 
 
 ### Botを作成する際、必要となる権限は以下の通りです。
-* Read Messages/View Channels
+~~ * Read Messages/View Channels
 
 * Send Messages
 
-* Embed Links
+* Embed Links ~~
+
+* ただいまAdministratorでなければ上手く動作しない状態となっています…、アップデートをお待ちください…🙇🏻՞
 
 ## ライセンス
 MIT LICENCE↓
