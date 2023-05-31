@@ -11,13 +11,21 @@ Sorry, All Japanese program...
 
   Twitter：[https://twitter.com/Nagaru_ST7](https://twitter.com/Nagaru_ST7)
 
+* ふゆねこ さん → 相談にのっていただきました！ありがとうございます！🙇🏻՞
+Twitter：[https://twitter.com/wintercatmk8dx](https://twitter.com/wintercatmk8dx)
+
+## 招待URL
+[Invite](https://discord.com/api/oauth2/authorize?client_id=1100466211403333694&permissions=8&scope=bot%20applications.commands)
+
 ## Download
 * [Download Link](https://github.com/Ay2416/MK8DX-AutoWarRecordSender/archive/refs/heads/main.zip)
 
 ## 注意
-* このbotにはDiscrod apiとMK8DX 150ccラウンジのサイト（[https://www.mk8dx-lounge.com/](https://www.mk8dx-lounge.com/)）のapiを使用しています。そのため、main.pyの19行目の値をいじることで更新間隔を短くしたりすることができますが、あまりにも小さくし過ぎるとapiサーバーに負荷をかけすぎてしまう可能性があるため、そこに注意してご使用していただけると幸いです。
+* このbotには<!--Discrod api-->とMK8DX 150ccラウンジのサイト（[https://www.mk8dx-lounge.com/](https://www.mk8dx-lounge.com/)）のapiを使用しています。そのため、main.pyの19行目の値をいじることで更新間隔を短くしたりすることができますが、あまりにも小さくし過ぎるとapiサーバーに負荷をかけすぎてしまう可能性があるため、そこに注意してご使用していただけると幸いです。
 
-* そして今回Botをホストしない理由として、あまり１つのBotに人数が偏ってしまうと処理が集中し、apiのサーバーへ負荷をかけてしまうのではないかという懸念があるからです。（現在の自分の技量ではどうしたら良いかわからなかったのもあります。）
+~~~ * そして今回Botをホストしない理由として、あまり１つのBotに人数が偏ってしまうと処理が集中し、apiのサーバーへ負荷をかけてしまうのではないかという懸念があるからです。（現在の自分の技量ではどうしたら良いかわからなかったのもあります。） ~~~
+
+→色々な方に確認をしたため、英語対応をさせた上で公開しました！
 
 ## 使い方（Discord上）
 下記のスラッシュコマンドを使用して使うことができます。
@@ -80,7 +88,7 @@ python 3.10.11
 
 ~~* Embed Links~~
 
-* ただいまAdministratorでなければ上手く動作しない状態となっています…、アップデートをお待ちください…🙇🏻՞
+* 通知のメッセージを送信するために、設定された投稿先のチャンネルを全て標準で見えるようにするためAdministratorを標準の権限にすることにしました！
 
 ## ライセンス
 MIT LICENCE↓
