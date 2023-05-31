@@ -15,7 +15,7 @@ Sorry, All Japanese program...
 Twitter：[https://twitter.com/wintercatmk8dx](https://twitter.com/wintercatmk8dx)
 
 ## 招待URL
-[Invite](https://discord.com/api/oauth2/authorize?client_id=1100466211403333694&permissions=8&scope=bot%20applications.commands)
+* [Invite](https://discord.com/api/oauth2/authorize?client_id=1100466211403333694&permissions=8&scope=bot%20applications.commands)
 
 ## Download
 * [Download Link](https://github.com/Ay2416/MK8DX-AutoWarRecordSender/archive/refs/heads/main.zip)
@@ -88,7 +88,7 @@ python 3.10.11
 
 ~~* Embed Links~~
 
-* 通知のメッセージを送信するために、設定された投稿先のチャンネルを全て標準で見えるようにするためAdministratorを標準の権限にすることにしました！
+* 通知のメッセージを送信する際に、設定された投稿先のチャンネルを全て標準で見えるようにするためAdministratorを標準の権限にすることにしました！
 
 ## ライセンス
 MIT LICENCE↓
