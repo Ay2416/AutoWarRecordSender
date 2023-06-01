@@ -1,5 +1,7 @@
 # MK8DX-AutoWarRecordSender
-Sorry, All Japanese program...
+Sorry, Readme.md and program comment out is all Japanese program...
+
+This bot support English !
 
 ## 概要
 このBotはMK8DXの150ccラウンジで行われる模擬やSQの戦績が更新された際にDiscordに通知を出すBotです。
