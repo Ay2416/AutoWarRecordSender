@@ -1,5 +1,5 @@
 # MK8DX-AutoWarRecordSender
-Sorry, Readme.md and program comment out is all Japanese program...
+Sorry, README.md and program comment out is all Japanese program...
 
 This bot support English !
 
