@@ -20,6 +20,7 @@ load_dotenv()
 update_time =  300 # 更新間隔を設定（秒）
 delay_time = 15 # /send_add,/send_deleteの使える間隔の設定（秒）
 api_url = "https://www.mk8dx-lounge.com/api/player/details?name="
+api_url_id = "https://www.mk8dx-lounge.com/api/player/details?id="
 JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
 UTC = datetime.timezone(datetime.timedelta(hours=0), 'UTC')
 
@@ -185,7 +186,7 @@ async def war_record_send():
             # 設定されている更新時間がきているかどうかの判定
             now = time.time() # メンテ時はありえないほど小さい数字を入れる
             if(read_data[j]["latest_time"] + update_time <= now):
-                response =  requests.get(api_url + read_data[j]["name"])
+                response =  requests.get(api_url_id + str(read_data[j]["playerId"]))
                 result = response.json()
 
                 #print(response.status_code)
@@ -194,10 +195,10 @@ async def war_record_send():
                     continue
 
                 # data_jsonフォルダからラウンジapiの古い情報を取得
-                with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + read_data[j]["name"] + ".ndjson") as f:
+                with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson") as f:
                     read_data2 = ndjson.load(f)
                 
-                print(read_data2[0]["name"] + "の処理を開始します")
+                print(str(read_data2[0]["playerId"]) + "の処理を開始します")
 
                 old_info = read_data2[0]["mmrChanges"]
                 new_info = result["mmrChanges"]
@@ -256,14 +257,16 @@ async def war_record_send():
                             read_data[j]["season_alert"] = 1 
                     
                     # read_data2に最新の情報を書きこむ
-                    os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + read_data[j]["name"] + ".ndjson")
-                    with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + result["name"] + ".ndjson", 'a') as f:
+                    os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                    with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", 'a') as f:
                         writer = ndjson.writer(f)
                         writer.writerow(result)
 
+                    '''
                     # 名前に変更があった場合、read_dataの名前を変更する
                     if result["name"] != read_data[j]["name"]:
                         read_data[j]["name"] = result["name"]
+                    '''
                     
                     # read_dataのlatest_timeを更新
                     read_data[j]["latest_time"] = time.time()
@@ -288,21 +291,28 @@ async def war_record_send():
                 elif old_info[0]["reason"] == "Placement": # new_infoが0、1じゃないときの処理（reason:Placement（api上）を抜け、2回以上やった人）
                     hozon = len(new_info) - 1
                 else:
-                    for k in range(0, len(new_info)):
-                        if old_info[0]["changeId"] == new_info[k]["changeId"]:
-                            hozon = k
-                            break
+                    try:
+                        for k in range(0, len(new_info)):
+                            if old_info[0]["changeId"] == new_info[k]["changeId"]:
+                                hozon = k
+                                break
+                    except Exception as e:
+                        hozon = 1
+                        
+                        print("何かエラーが発生したため、hozon = 1としました")
                 #print(hozon)
                 if hozon == 0:
                     # read_data2に最新の情報を書きこむ
-                    os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + read_data[j]["name"] + ".ndjson")
-                    with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + result["name"] + ".ndjson", 'a') as f:
+                    os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                    with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", 'a') as f:
                         writer = ndjson.writer(f)
                         writer.writerow(result)
 
+                    '''
                     # 名前に変更があった場合、read_dataの名前を変更する
                     if result["name"] != read_data[j]["name"]:
                         read_data[j]["name"] = result["name"]
+                    '''
                     
                     # read_dataのlatest_timeを更新
                     read_data[j]["latest_time"] = time.time()
@@ -400,14 +410,16 @@ async def war_record_send():
                     await channel_sent.send(embed=embed)
                 
                 # read_data2に最新の情報を書きこむ
-                os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + read_data[j]["name"] + ".ndjson")
-                with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + result["name"] + ".ndjson", 'a') as f:
+                os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                with open('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", 'a') as f:
                     writer = ndjson.writer(f)
                     writer.writerow(result)
                 
+                '''
                 # 名前に変更があった場合、read_dataの名前を変更する
                 if result["name"] != read_data[j]["name"]:
                     read_data[j]["name"] = result["name"]
+                '''
                 
                 # season_alertの初期化処理
                 if len(new_info) > 1 and read_data[j]["season_alert"] >= 1:
@@ -571,7 +583,7 @@ async def send_add(interaction: discord.Interaction,lounge_name:str,channel:disc
 
     for i in range(0, len(files)):
         print(os.path.split(files[i])[1])
-        if(os.path.split(files[i])[1] == result["name"] + ".ndjson"):
+        if(os.path.split(files[i])[1] == str(result["playerId"]) + ".ndjson"):
             #print("一致しました！")
             judge = 1
             break
@@ -579,12 +591,12 @@ async def send_add(interaction: discord.Interaction,lounge_name:str,channel:disc
     if judge != 1:
         # print(interaction.guild.id)
 
-        with open('./data_json/' + str(interaction.guild.id) + '/' + result["name"] + ".ndjson", 'a') as f:
+        with open('./data_json/' + str(interaction.guild.id) + '/' + str(result["playerId"]) + ".ndjson", 'a') as f:
             writer = ndjson.writer(f)
             writer.writerow(result)
     else:
         #file = str(interaction.guild.id) + ".ndjson"
-        with open('./data_json/' + str(interaction.guild.id) + '/' + result["name"] + ".ndjson") as f:
+        with open('./data_json/' + str(interaction.guild.id) + '/' + str(result["playerId"]) + ".ndjson") as f:
                     read_data = ndjson.load(f)
         
         judge = 1
@@ -610,7 +622,7 @@ async def send_add(interaction: discord.Interaction,lounge_name:str,channel:disc
     
     # guild_jsonフォルダにサーバーidのフォルダを作成
     content = {
-            "name" : result["name"],
+            "playerId" : result["playerId"],
             "latest_time": time.time(),
             "channel": channel.id,
             "season_alert": 0,
@@ -696,6 +708,7 @@ async def send_delete(interaction: discord.Interaction,lounge_name:str):
     #print(lounge_name)
 
     response =  requests.get(api_url + lounge_name)
+    result = response.json()
     
     #print(response.status_code)
     if response.status_code != 200:
@@ -729,7 +742,7 @@ async def send_delete(interaction: discord.Interaction,lounge_name:str):
 
     for i in range(0, len(files)):
         print(os.path.split(files[i])[1])
-        if(os.path.split(files[i])[1] == lounge_name + ".ndjson"):
+        if(os.path.split(files[i])[1] == str(result["playerId"]) + ".ndjson"):
             #print("一致しました！")
             judge = 1
             break
@@ -743,7 +756,7 @@ async def send_delete(interaction: discord.Interaction,lounge_name:str):
         return
     
     # data_jsonファルダにあるユーザーデータの削除
-    os.remove('./data_json/' + str(interaction.guild.id) + '/' + lounge_name + ".ndjson")
+    os.remove('./data_json/' + str(interaction.guild.id) + '/' + str(result["playerId"]) + ".ndjson")
 
     # data_jsonフォルダ内のサーバーフォルダの中身がなくなりそうな場合にフォルダを削除する
     if len(files) == 1:
@@ -759,7 +772,7 @@ async def send_delete(interaction: discord.Interaction,lounge_name:str):
         data_location = 0
         print(read_data)
         for i in range(0, len(read_data)):
-            if lounge_name == read_data[i]["name"]:
+            if result["playerId"] == read_data[i]["playerId"]:
                 data_location = i
                 #print(read_data)
                 break
@@ -831,10 +844,13 @@ async def send_list(interaction: discord.Interaction):
         else:
             mention_setting = "off"
 
+        with open('./data_json/' + str(interaction.guild.id) + '/' + str(read_data[i]["playerId"]) + '.ndjson') as f:
+            read_data2 = ndjson.load(f)
+        
         if language == "ja":
-            embed.add_field(name=read_data[i]["name"], value="投稿先チャンネル：<#" + str(read_data[i]["channel"]) + ">\nメンション：" + mention_setting, inline=False)
+            embed.add_field(name=read_data2[0]["name"], value="投稿先チャンネル：<#" + str(read_data[i]["channel"]) + ">\nメンション：" + mention_setting, inline=False)
         elif language == "en":
-            embed.add_field(name=read_data[i]["name"], value="Send Channel: <#" + str(read_data[i]["channel"]) + ">\nMention: " + mention_setting, inline=False)
+            embed.add_field(name=read_data2[0]["name"], value="Send Channel: <#" + str(read_data[i]["channel"]) + ">\nMention: " + mention_setting, inline=False)
         
     await interaction.followup.send(embed=embed)
 
@@ -929,5 +945,6 @@ async def help(interaction: discord.Interaction):
         embed.add_field(name="", value="", inline=False)
     '''
     await interaction.response.send_message(embed=embed,ephemeral=False)
+
 
 client.run(os.environ['token'])
