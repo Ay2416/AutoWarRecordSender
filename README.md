@@ -161,6 +161,8 @@ MIT LICENCE↓
 
 * discord.py V2のスラッシュコマンドを使えるようにする：[https://qiita.com/Luapy/items/3abff9575e132e2955ec](https://qiita.com/Luapy/items/3abff9575e132e2955ec)
 
+* discord.pyでスラッシュコマンドを実装する。：[https://qiita.com/beatbox4108/items/0d28619bb49e86f58ace](https://qiita.com/beatbox4108/items/0d28619bb49e86f58ace)
+
 * discord.py APIリファレンス - await fetch_user()：[https://discordpy.readthedocs.io/ja/latest/api.html#discord.Client.fetch_channel](https://discordpy.readthedocs.io/ja/latest/api.html#discord.Client.fetch_channel)
 
 * Pythonの例外処理！try-exceptをわかりやすく解説！：[https://www.sejuku.net/blog/23044](https://www.sejuku.net/blog/23044)
