@@ -483,6 +483,7 @@ async def war_record_send():
 
 # /send add
 @tree.command(name="send_add",description="戦績を送信するプレイヤーを追加します。 / The War record send player add.")
+@discord.app_commands.guild_only()
 @discord.app_commands.choices(mention=[discord.app_commands.Choice(name="on",value="on"),discord.app_commands.Choice(name="off",value="off")])
 async def send_add(interaction: discord.Interaction,lounge_name:str,channel:discord.TextChannel,mention:str):
     await interaction.response.defer(ephemeral=True)
@@ -688,6 +689,7 @@ async def send_add(interaction: discord.Interaction,lounge_name:str,channel:disc
 
 # /send delete
 @tree.command(name="send_delete",description="指定された戦績を送信するプレイヤーを削除します。 / The War record send player delete.")
+@discord.app_commands.guild_only()
 async def send_delete(interaction: discord.Interaction,lounge_name:str):
     await interaction.response.defer(ephemeral=True)
 
@@ -840,6 +842,7 @@ async def send_delete(interaction: discord.Interaction,lounge_name:str):
 
 # /send list
 @tree.command(name="send_list",description="戦績を送信するために登録されているプレイヤーを表示します。 / The War record send player list view.")
+@discord.app_commands.guild_only()
 async def send_list(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=False)
 
@@ -911,6 +914,7 @@ async def send_list(interaction: discord.Interaction):
 
 # /language
 @tree.command(name="language",description="言語を変更します。（jaまたはen） / Change language. (ja or en)")
+@discord.app_commands.guild_only()
 @discord.app_commands.choices(language=[discord.app_commands.Choice(name="ja",value="ja"),discord.app_commands.Choice(name="en",value="en")])
 async def language_command(interaction: discord.Interaction,language:str):
     # 言語の確認
@@ -971,6 +975,7 @@ async def language_command(interaction: discord.Interaction,language:str):
 
 # /help
 @tree.command(name="help",description="コマンドについての簡単な使い方を出します。 / How to use command and Command list.")
+@discord.app_commands.guild_only()
 async def help(interaction: discord.Interaction):
     # 言語の確認
     file = str(interaction.guild.id) + ".ndjson"
