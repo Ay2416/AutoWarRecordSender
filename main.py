@@ -218,9 +218,9 @@ async def war_record_send():
                                     guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
                                     user = await client.fetch_user(int(read_data[j]["mention"]))
                                     if language == "ja":
-                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。", color=0x00008b)
+                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。", color=0x00008b)
                                     elif language == "en":
-                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.", color=0x00008b)
+                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.", color=0x00008b)
                                     
                                     await user.send(embed=embed)
 
@@ -260,9 +260,9 @@ async def war_record_send():
                                     guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
                                     user = await client.fetch_user(int(read_data[j]["mention"]))
                                     if language == "ja":
-                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。\nhttps://discord.gg/CVXXPdk8", color=0x00008b)
+                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。", color=0x00008b)
                                     elif language == "en":
-                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.\nhttps://discord.gg/CVXXPdk8", color=0x00008b)
+                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.", color=0x00008b)
                                     
                                     await user.send(embed=embed)
 
@@ -414,9 +414,9 @@ async def war_record_send():
                             guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
                             user = await client.fetch_user(int(read_data[j]["mention"]))
                             if language == "ja":
-                                embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。", color=0x00008b)
+                                embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。", color=0x00008b)
                             elif language == "en":
-                                embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.", color=0x00008b)
+                                embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.", color=0x00008b)
                             
                             await user.send(embed=embed)
 
