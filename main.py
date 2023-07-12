@@ -211,7 +211,21 @@ async def war_record_send():
                             # メンションが必要であるか
                             if read_data[j]["mention"] != "null":
                                 channel_sent = client.get_channel(read_data[j]["channel"])
-                                await channel_sent.send("<@" + read_data[j]["mention"] + ">")
+
+                                try:
+                                    await channel_sent.send("<@" + read_data[j]["mention"] + ">")
+                                except Exception as e:
+                                    guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
+                                    user = await client.fetch_user(int(read_data[j]["mention"]))
+                                    if language == "ja":
+                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。", color=0x00008b)
+                                    elif language == "en":
+                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.", color=0x00008b)
+                                    
+                                    await user.send(embed=embed)
+
+                                    print("mentionエラーでcontinueしました。")
+                                    continue
                             
                             if language == "ja":
                                 embed=discord.Embed(title="データがありません！\n新しいユーザーであるか、もしくは新シーズンが始まります！\n\n" + result["name"] + " Season" + str(result["season"]) + " War Record", color=0x00008b)
@@ -239,7 +253,21 @@ async def war_record_send():
                             # メンションが必要であるか
                             if read_data[j]["mention"] != "null":
                                 channel_sent = client.get_channel(read_data[j]["channel"])
-                                await channel_sent.send("<@" + read_data[j]["mention"] + ">")
+
+                                try:
+                                    await channel_sent.send("<@" + read_data[j]["mention"] + ">")
+                                except Exception as e:
+                                    guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
+                                    user = await client.fetch_user(int(read_data[j]["mention"]))
+                                    if language == "ja":
+                                        embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。\nhttps://discord.gg/CVXXPdk8", color=0x00008b)
+                                    elif language == "en":
+                                        embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.\nhttps://discord.gg/CVXXPdk8", color=0x00008b)
+                                    
+                                    await user.send(embed=embed)
+
+                                    print("mentionエラーでcontinueしました。")
+                                    continue
                             
                             if language == "ja":
                                 embed=discord.Embed(title="データがありません！\n新しいユーザーであるか、もしくは新シーズンが始まります！\n\n" + result["name"] + " Season" + str(result["season"]) + " War Record", color=0x00008b)
@@ -379,8 +407,22 @@ async def war_record_send():
 
                     if read_data[j]["mention"] != "null":
                         channel_sent = client.get_channel(read_data[j]["channel"])
-                        await channel_sent.send("<@" + read_data[j]["mention"] + ">")
-                    
+
+                        try:
+                            await channel_sent.send("<@" + read_data[j]["mention"] + ">")
+                        except Exception as e:
+                            guild = client.get_guild(int(os.path.splitext(os.path.basename(files[i]))[0]))
+                            user = await client.fetch_user(int(read_data[j]["mention"]))
+                            if language == "ja":
+                                embed=discord.Embed(title="送信エラー",description= guild.name + "のサーバーでメッセージを送信することができませんでした。\nこの通知がしばらく続く場合は、サポートサーバーへ連絡を入れてください。", color=0x00008b)
+                            elif language == "en":
+                                embed=discord.Embed(title="Send Error", description="A message could not be sent on " + guild.name + "server.\nIf this notification persists for some time, please contact our support server.", color=0x00008b)
+                            
+                            await user.send(embed=embed)
+
+                            print("mentionエラーでcontinueしました。")
+                            continue
+            
                     if language == "ja":
                         embed=discord.Embed(title="戦績が更新されました！\n\n" + result["name"] + " Season" + str(result["season"]) + " War Record", color=0x00008b)
                     elif language == "en":
@@ -838,6 +880,7 @@ async def send_list(interaction: discord.Interaction):
         embed=discord.Embed(title="Registered Player")
     
     mention_setting = " "
+    cut = 25
     for i in range(0, len(read_data)):
         if read_data[i]["mention"] != "null":
             mention_setting = "on"
@@ -852,7 +895,19 @@ async def send_list(interaction: discord.Interaction):
         elif language == "en":
             embed.add_field(name=read_data2[0]["name"], value="Send Channel: <#" + str(read_data[i]["channel"]) + ">\nMention: " + mention_setting, inline=False)
         
-    await interaction.followup.send(embed=embed)
+        if i == len(read_data) - 1:
+            #表示させる
+            await interaction.followup.send(embed=embed)
+            return
+        
+        if i + 1 == cut:
+            cut = cut + 25
+            #表示させる
+            await interaction.followup.send(embed=embed)
+            embed=discord.Embed(title="")
+            
+            # DiscordのWebhook送信制限に引っかからないための対策　※効果があるかは不明
+            await asyncio.sleep(2)
 
 # /language
 @tree.command(name="language",description="言語を変更します。（jaまたはen） / Change language. (ja or en)")
@@ -945,6 +1000,5 @@ async def help(interaction: discord.Interaction):
         embed.add_field(name="", value="", inline=False)
     '''
     await interaction.response.send_message(embed=embed,ephemeral=False)
-
 
 client.run(os.environ['token'])
