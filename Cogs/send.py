@@ -17,7 +17,6 @@ class send(app_commands.Group):
     # /send *
     # /send add
     @app_commands.command(name="add",description="戦績を送信するプレイヤーを追加します。 / The War record send player add.")
-    #@app_commands.describe(url="YouTubeチャンネルのURL")
     @app_commands.choices(normal_mention=[discord.app_commands.Choice(name="on",value="on"),discord.app_commands.Choice(name="off",value="off")])
     @app_commands.choices(rankup_notification=[discord.app_commands.Choice(name="on",value="on"),discord.app_commands.Choice(name="off",value="off")])
     @app_commands.choices(rankup_mention=[discord.app_commands.Choice(name="on",value="on"),discord.app_commands.Choice(name="off",value="off")])

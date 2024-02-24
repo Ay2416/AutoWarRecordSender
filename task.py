@@ -2,16 +2,14 @@
 import discord
 import os
 import glob
-import sys
 import math
-import traceback
+#import traceback
 import ndjson
 import time
 import datetime
 import dateutil.parser
 import requests
 import asyncio
-import json
 
 # My program import
 # None
@@ -23,7 +21,7 @@ JST = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
 UTC = datetime.timezone(datetime.timedelta(hours=0), 'UTC')
 
 class Task:
-    async def send_message(self, bot):
+    async def send_message(self, bot, num):
 
         try:
             # guild_jsonのファイル一覧を取得
@@ -33,124 +31,255 @@ class Task:
             for i in range(0, len(files)):
                 #print("a")
 
-                # 言語の確認
-                read_data = await Task.read_ndjson('./language_json/' + os.path.split(files[i])[1])
-                language = read_data[0]["language_mode"]
+                judge = 0
+                if i != 0:
+                    if num == 1:
+                        if i % 2 != 0:
+                            judge = 1
+                    else:
+                        if i % 2 == 0:
+                            judge = 1
+                else:
+                    if num == 2:
+                        judge = 1
+                    
+                if judge == 1:
+                    # 言語の確認
+                    read_data = await Task.read_ndjson('./language_json/' + os.path.split(files[i])[1])
+                    language = read_data[0]["language_mode"]
 
-                # 処理対象のサーバーのデータを読み込む
-                read_data = await Task.read_ndjson('./guild_json/' + os.path.split(files[i])[1])
+                    # 処理対象のサーバーのデータを読み込む
+                    read_data = await Task.read_ndjson('./guild_json/' + os.path.split(files[i])[1])
 
-                for j in range(0, len(read_data)):
-                    #print("i")
-                    # apiサーバー気休めのためのディレイをかける
-                    await asyncio.sleep(1)
+                    for j in range(0, len(read_data)):
+                        #print("i")
+                        # apiサーバー気休めのためのディレイをかける
+                        await asyncio.sleep(2)
 
-                    # 設定されている更新時間がきているかどうかの判定
-                    now = time.time() # メンテ時はありえないほど小さい数字を入れる
-                    if(read_data[j]["latest_time"] + update_time <= now):
-                        
-                        response =  requests.get(api_url_id + str(read_data[j]["playerId"]))
-                        
-                        try:
-                            result = response.json()
-                        except Exception:
-                            # 主にラウンジシーズン切り替え時のメンテナンス時に発生すると思われる
-                            print("requestsで返ってきた情報がjson形式ではないエラーでcontinueしました")
-                            continue
-
-                        #print(response.status_code)
-                        if response.status_code != 200:
-                            print("ラウンジのサーバーが落ちている可能性がある判定でcontinueしました")
-                            continue
-
-                        # data_jsonフォルダからラウンジapiの古い情報を取得
-                        read_data2 = await Task.read_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + 
-                                                        "/" + str(read_data[j]["playerId"]) + ".ndjson")
-
-                        print(str(read_data2[0]["playerId"]) + "の処理を開始します")
-
-                        # データを参照しやすいようにmmrの情報のみを抽出
-                        old_info = read_data2[0]["mmrChanges"]
-                        new_info = result["mmrChanges"]
-                        
-                        # eventPlayedが0のとき = Placement（ラウンジを始めたばっかりの人）やシーズンが始まったばっかりの時に動く判定処理
-                        if result["eventsPlayed"] == 0:
-                            if len(new_info) == 0 and read_data[j]["season_alert"] == 0:
-                                await Task.send_season_alert(bot, language, read_data[j]["channel"], result, new_info, "OFF")
-                                read_data[j]["season_alert"] = 1
-                            elif len(new_info) == 1 and read_data[j]["season_alert"] == 1:
-                                await Task.send_season_alert(bot, language, read_data[j]["channel"], result, new_info, "ON")
-                                read_data[j]["season_alert"] = 2
+                        # 設定されている更新時間がきているかどうかの判定
+                        now = time.time() # メンテ時はありえないほど小さい数字を入れる
+                        if(read_data[j]["latest_time"] + update_time <= now):
                             
-                            # read_data2に最新の情報を書きこむ
-                            os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
-                            await Task.write_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", result)
-
-                            '''
-                            # 名前に変更があった場合、read_dataの名前を変更する
-                            if result["name"] != read_data[j]["name"]:
-                                read_data[j]["name"] = result["name"]
-                            '''
+                            response =  requests.get(api_url_id + str(read_data[j]["playerId"]))
                             
-                            # read_dataのlatest_timeを更新
-                            read_data[j]["latest_time"] = time.time()
-
-                            os.remove('./guild_json/' + os.path.split(files[i])[1])
-                            
-                            await Task.update_ndjson('./guild_json/' + os.path.split(files[i])[1], read_data)
-                            
-                            print("Placement（ラウンジを始めたばっかりの人）やシーズンが始まったばっかりの時に動く判定でcontinueしました")
-                            
-                            continue
-                        
-                        #print(read_data[j]["name"])
-                        #print(len(new_info))
-                        #print(len(old_info))
-
-                        hozon = 0 # 戦績結果の更新をする回数を保存する用
-                        counta = 0
-                        changeId_none = 0
-                        reference_num = 0
-                        while counta < len(new_info):
-                            # Placementだった場合を考えて（PlacementがreasonになっているものにはchangeIdが存在しない）
-                            # ワンチャンこの下のif文いらないかも？
-                            #if new_info[k]["reason"] == "Placement":
-                            #    break
-
-                            if old_info[reference_num]["reason"] == "Placement":
-                                break
-                            
-                            if len(new_info) - 1 == counta:
-                                counta = 0
-                                reference_num += 1
+                            try:
+                                result = response.json()
+                            except Exception:
+                                # 主にラウンジシーズン切り替え時のメンテナンス時に発生すると思われる
+                                print("requestsで返ってきた情報がjson形式ではないエラーでcontinueしました")
                                 continue
 
-                            if old_info[reference_num]["changeId"] == new_info[counta]["changeId"]:
-                                hozon = counta
-                                changeId_none = 1
-                                break
-                            else:
-                                pass
+                            #print(response.status_code)
+                            if response.status_code != 200:
+                                print("ラウンジのサーバーが落ちている可能性がある判定でcontinueしました")
+                                continue
 
-                            counta += 1
+                            # data_jsonフォルダからラウンジapiの古い情報を取得
+                            read_data2 = await Task.read_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + 
+                                                            "/" + str(read_data[j]["playerId"]) + ".ndjson")
 
-                        # changeIdが存在しなくてPlacementだった場合
-                        # changeIdが存在しなくてそのseasonをある程度遊んでいる場合
-                        if changeId_none == 0:
-                            hozon = len(new_info) - ( len(new_info) - 1 )
+                            print(str(read_data2[0]["playerId"]) + "の処理を開始します")
+
+                            # データを参照しやすいようにmmrの情報のみを抽出
+                            old_info = read_data2[0]["mmrChanges"]
+                            new_info = result["mmrChanges"]
+                            
+                            # eventPlayedが0のとき = Placement（ラウンジを始めたばっかりの人）やシーズンが始まったばっかりの時に動く判定処理
+                            if result["eventsPlayed"] == 0:
+                                if len(new_info) == 0 and read_data[j]["season_alert"] == 0:
+                                    await Task.send_season_alert(bot, language, read_data[j]["channel"], result, new_info, "OFF")
+                                    read_data[j]["season_alert"] = 1
+                                elif len(new_info) == 1 and read_data[j]["season_alert"] == 1:
+                                    await Task.send_season_alert(bot, language, read_data[j]["channel"], result, new_info, "ON")
+                                    read_data[j]["season_alert"] = 2
+                                
+                                # read_data2に最新の情報を書きこむ
+                                os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                                await Task.write_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", result)
+
+                                '''
+                                # 名前に変更があった場合、read_dataの名前を変更する
+                                if result["name"] != read_data[j]["name"]:
+                                    read_data[j]["name"] = result["name"]
+                                '''
+                                
+                                # read_dataのlatest_timeを更新
+                                read_data[j]["latest_time"] = time.time()
+
+                                os.remove('./guild_json/' + os.path.split(files[i])[1])
+                                
+                                await Task.update_ndjson('./guild_json/' + os.path.split(files[i])[1], read_data)
+                                
+                                print("Placement（ラウンジを始めたばっかりの人）やシーズンが始まったばっかりの時に動く判定でcontinueしました")
+                                
+                                continue
+
+                            hozon = 0 # 戦績結果の更新をする回数を保存する用
+                            counta = 0
+                            changeId_none = 0
+                            reference_num = 0
+                            while counta < len(new_info):
+                                # Placementだった場合を考えて（PlacementがreasonになっているものにはchangeIdが存在しない）
+                                # ワンチャンこの下のif文いらないかも？
+                                #if new_info[k]["reason"] == "Placement":
+                                #    break
+
+                                #old_infoの配列が0のときにエラーが発生する模様　※応急措置でreturnするように設定
+                                try:
+                                    if old_info[reference_num]["reason"] == "Placement":
+                                        break
+                                except Exception:
+                                    changeId_none = 1
+                                    break
+                                
+                                if len(new_info) - 1 == counta:
+                                    counta = 0
+                                    reference_num += 1
+                                    continue
+
+                                if old_info[reference_num]["changeId"] == new_info[counta]["changeId"]:
+                                    hozon = counta
+                                    changeId_none = 1
+                                    break
+                                else:
+                                    pass
+
+                                counta += 1
+
+                            # changeIdが存在しなくてPlacementだった場合
+                            # changeIdが存在しなくてそのseasonをある程度遊んでいる場合
+                            if changeId_none == 0:
+                                hozon = len(new_info) - ( len(new_info) - 1 )
 
 
-                        #print(hozon)
-                        if hozon == 0:
+                            #print(hozon)
+                            if hozon == 0:
+                                # read_data2に最新の情報を書きこむ
+                                os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                                await Task.write_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", result)
+
+                                '''
+                                # 名前に変更があった場合、read_dataの名前を変更する
+                                if result["name"] != read_data[j]["name"]:
+                                    read_data[j]["name"] = result["name"]
+                                '''
+                                
+                                # read_dataのlatest_timeを更新
+                                read_data[j]["latest_time"] = time.time()
+
+                                os.remove('./guild_json/' + os.path.split(files[i])[1])
+                                
+                                await Task.update_ndjson('./guild_json/' + os.path.split(files[i])[1], read_data)
+                                print("更新がない判定でcontinueしました")
+                                continue
+                            
+                            mention_count1 = 0
+                            for k in range(hozon-1,-1,-1):
+                                #print(l)
+
+                                # ランクを判定する season9時点のランクを入れておく seasonが変わることに確認する必要あり
+                                rank = await Task.rank_judge(new_info[k]["newMmr"])
+
+                                # mmrDeltaに+の数値であれば+を付ける判定
+                                if new_info[k]["mmrDelta"] > 0:
+                                    mmrdelta = "+" + str(new_info[k]["mmrDelta"])
+                                else:
+                                    mmrdelta = str(new_info[k]["mmrDelta"])
+
+                                if read_data[j]["normal_mention"] != "null" and mention_count1 == 0:
+                                    mention_result = await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["normal_mention"], 
+                                                                        int(os.path.splitext(os.path.basename(files[i]))[0]))
+                                
+                                    if mention_result != "success":
+                                        continue
+
+                                    mention_count1 = 1
+
+                                # どういう理由でmmrが増減したかを確認する処理
+                                if new_info[k]["reason"] != "Table":
+                                    send_result = await Task.send_other_message(bot, language, read_data[j]["channel"], mmrdelta, rank, result, new_info[k]["time"],
+                                                                                new_info[k]["reason"], new_info[k]["newMmr"])
+                                else:
+                                    send_result = await Task.send_record_message(bot, language, read_data[j]["channel"], mmrdelta, rank, result, new_info[k]["time"], 
+                                                                            new_info[k]["newMmr"], new_info[k]["numTeams"], new_info[k]["changeId"])
+                                
+                                if send_result == "success":
+                                    pass
+                                
+                                # channel idを抽出する
+                                #id = read_data[j]["channel"]
+                                #id = id[2:]
+                                #id = id[:-1]
+
+                                # ランクアップ通知の処理
+                                # 今シーズン5戦以上していたら処理をする
+                                if result["eventsPlayed"] >= 5 and read_data[j]["rankup_notification"] == "on":
+                                    now_rank = await Task.rank_judge(new_info[k]["newMmr"])
+                                    old_rank = await Task.rank_judge(new_info[k+1]["newMmr"])
+
+                                    now_mmr_floor = math.floor(new_info[k]["newMmr"] / 1000)
+                                    old_mmr_floor = math.floor(new_info[k+1]["newMmr"] / 1000)
+                                    peak_mmr_floor = math.floor(result["maxMmr"] / 1000)
+
+                                    peak_mmr = result["maxMmr"]
+                                    now_mmr = new_info[k]["newMmr"]
+                                    
+                                    if int(now_mmr_floor - old_mmr_floor) == 1:
+
+                                        rankup_judge = 0
+                                        if peak_mmr - now_mmr != 0:
+                                            print("a")
+                                            # 帰ってきた通知
+                                            # メンションを希望の場合
+                                            if read_data[j]["rankup_mention"] != "null" and mention_count1 == 0:
+                                                print("mention!")
+                                                await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["rankup_mention"], 
+                                                                int(os.path.splitext(os.path.basename(files[i]))[0]))
+                                                
+                                                mention_count1 = 1
+                                                
+                                            # メッセージ送信
+                                            await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "other")
+
+                                        else:
+                                            print("b")
+                                            for l in range(len(new_info)-2, -1, -1):
+                                                if peak_mmr_floor - int(math.floor(new_info[l]["newMmr"] / 1000)) == 0:
+                                                    rankup_judge = 1
+                                                    break
+                                        
+                                            # メンションを希望の場合
+                                            if read_data[j]["rankup_mention"] != "null" and mention_count1 == 0:
+                                                print("mention!")
+                                                await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["rankup_mention"], 
+                                                                int(os.path.splitext(os.path.basename(files[i]))[0]))
+                                                
+                                                mention_count1 = 1
+
+                                            if rankup_judge == 0:
+                                                print("c")
+                                                # 初めての通知
+                                                await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "first")
+                                            else:
+                                                print("d")
+                                                # 帰ってきた通知
+                                                await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "other")
+
                             # read_data2に最新の情報を書きこむ
                             os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
+                            
                             await Task.write_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", result)
 
+                            
                             '''
                             # 名前に変更があった場合、read_dataの名前を変更する
                             if result["name"] != read_data[j]["name"]:
                                 read_data[j]["name"] = result["name"]
                             '''
+
+                            # season_alertの初期化処理
+                            if len(new_info) > 1 and read_data[j]["season_alert"] >= 1:
+                                read_data[j]["season_alert"] = 0
                             
                             # read_dataのlatest_timeを更新
                             read_data[j]["latest_time"] = time.time()
@@ -158,127 +287,10 @@ class Task:
                             os.remove('./guild_json/' + os.path.split(files[i])[1])
                             
                             await Task.update_ndjson('./guild_json/' + os.path.split(files[i])[1], read_data)
-                            print("更新がない判定でcontinueしました")
-                            continue
-                        
-                        mention_count1 = 0
-                        for k in range(hozon-1,-1,-1):
-                            #print(l)
-
-                            # ランクを判定する season9時点のランクを入れておく seasonが変わることに確認する必要あり
-                            rank = await Task.rank_judge(new_info[k]["newMmr"])
-
-                            # mmrDeltaに+の数値であれば+を付ける判定
-                            if new_info[k]["mmrDelta"] > 0:
-                                mmrdelta = "+" + str(new_info[k]["mmrDelta"])
-                            else:
-                                mmrdelta = str(new_info[k]["mmrDelta"])
-
-                            if read_data[j]["normal_mention"] != "null" and mention_count1 == 0:
-                                mention_result = await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["normal_mention"], 
-                                                                    int(os.path.splitext(os.path.basename(files[i]))[0]))
                             
-                                if mention_result != "success":
-                                    continue
-
-                                mention_count1 = 1
-
-                            # どういう理由でmmrが増減したかを確認する処理
-                            if new_info[k]["reason"] != "Table":
-                                send_result = await Task.send_other_message(bot, language, read_data[j]["channel"], mmrdelta, rank, result, new_info[k]["time"],
-                                                                            new_info[k]["reason"], new_info[k]["newMmr"])
-                            else:
-                                send_result = await Task.send_record_message(bot, language, read_data[j]["channel"], mmrdelta, rank, result, new_info[k]["time"], 
-                                                                        new_info[k]["newMmr"], new_info[k]["numTeams"], new_info[k]["changeId"])
-                            
-                            if send_result == "success":
-                                pass
-                            
-                            # channel idを抽出する
-                            #id = read_data[j]["channel"]
-                            #id = id[2:]
-                            #id = id[:-1]
-
-                            # ランクアップ通知の処理
-                            # 今シーズン5戦以上していたら処理をする
-                            if result["eventsPlayed"] >= 5 and read_data[j]["rankup_notification"] == "on":
-                                now_rank = await Task.rank_judge(new_info[k]["newMmr"])
-                                old_rank = await Task.rank_judge(new_info[k+1]["newMmr"])
-
-                                now_mmr_floor = math.floor(new_info[k]["newMmr"] / 1000)
-                                old_mmr_floor = math.floor(new_info[k+1]["newMmr"] / 1000)
-                                peak_mmr_floor = math.floor(result["maxMmr"] / 1000)
-
-                                peak_mmr = result["maxMmr"]
-                                now_mmr = new_info[k]["newMmr"]
-                                
-                                if int(now_mmr_floor - old_mmr_floor) == 1:
-
-                                    rankup_judge = 0
-                                    if peak_mmr - now_mmr != 0:
-                                        print("a")
-                                        # 帰ってきた通知
-                                        # メンションを希望の場合
-                                        if read_data[j]["rankup_mention"] != "null" and mention_count1 == 0:
-                                            print("mention!")
-                                            await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["rankup_mention"], 
-                                                            int(os.path.splitext(os.path.basename(files[i]))[0]))
-                                            
-                                            mention_count1 = 1
-                                            
-                                        # メッセージ送信
-                                        await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "other")
-
-                                    else:
-                                        print("b")
-                                        for l in range(len(new_info)-2, -1, -1):
-                                            if peak_mmr_floor - int(math.floor(new_info[l]["newMmr"] / 1000)) == 0:
-                                                rankup_judge = 1
-                                                break
-                                    
-                                        # メンションを希望の場合
-                                        if read_data[j]["rankup_mention"] != "null" and mention_count1 == 0:
-                                            print("mention!")
-                                            await Task.mention_check(bot, language, read_data[j]["channel"], read_data[j]["rankup_mention"], 
-                                                            int(os.path.splitext(os.path.basename(files[i]))[0]))
-                                            
-                                            mention_count1 = 1
-
-                                        if rankup_judge == 0:
-                                            print("c")
-                                            # 初めての通知
-                                            await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "first")
-                                        else:
-                                            print("d")
-                                            # 帰ってきた通知
-                                            await Task.send_rankup_notification(bot, language, read_data[j]["channel"], result, old_rank, now_rank, "other")
-
-                        # read_data2に最新の情報を書きこむ
-                        os.remove('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(read_data[j]["playerId"]) + ".ndjson")
-                        
-                        await Task.write_ndjson('./data_json/' + os.path.splitext(os.path.basename(files[i]))[0] + "/" + str(result["playerId"]) + ".ndjson", result)
-
-                        
-                        '''
-                        # 名前に変更があった場合、read_dataの名前を変更する
-                        if result["name"] != read_data[j]["name"]:
-                            read_data[j]["name"] = result["name"]
-                        '''
-
-                        # season_alertの初期化処理
-                        if len(new_info) > 1 and read_data[j]["season_alert"] >= 1:
-                            read_data[j]["season_alert"] = 0
-                        
-                        # read_dataのlatest_timeを更新
-                        read_data[j]["latest_time"] = time.time()
-
-                        os.remove('./guild_json/' + os.path.split(files[i])[1])
-                        
-                        await Task.update_ndjson('./guild_json/' + os.path.split(files[i])[1], read_data)
-                        
-                        print("表示し、更新する所までの処理を全て正常に通過しました")
+                            print("表示し、更新する所までの処理を全て正常に通過しました")
                 
-                print("No." + str(i + 1) + " " + os.path.splitext(os.path.basename(files[i]))[0] + "のサーバーの処理が終了しました")
+                    print(str(i + 1) + "." + os.path.splitext(os.path.basename(files[i]))[0] + "のサーバーの処理が終了しました")
         except Exception as e:
             #print(traceback.format_exc())
             '''

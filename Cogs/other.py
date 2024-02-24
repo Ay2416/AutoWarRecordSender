@@ -101,6 +101,12 @@ class other(commands.Cog):
             embed.add_field(name="/mkc lounge_name:[ラウンジ名]", value="プレイヤーのマリオカートセントラルのプロフィールページを表示します。\n※ラウンジ名は必須ではありません。", inline=False)
             embed.add_field(name="/language language:[言語の選択（ja/en）]", value="このBotのコマンドの言語を変更します。", inline=False)
             embed.add_field(name="/help", value="このBotのコマンドの簡単な使い方を出します。", inline=False)
+            embed.add_field(name="/support", value="サポートサーバーについて表示します。", inline=False)
+            embed.add_field(name="アプリ「Add Send」", value="戦績を送信するプレイヤーの追加を行います。\nこのコマンドについては、上の画像をご覧ください。", inline=False)
+            fname="why_add_send_ja-1.png"
+            file = discord.File(fp="./images/why_add_send_ja-1.png",filename=fname,spoiler=False)
+            fname1="why_add_send_ja-2.png"
+            file1 = discord.File(fp="./images/why_add_send_ja-2.png",filename=fname1,spoiler=False)
         elif language == "en":
             embed=discord.Embed(title="Command list")
             embed.add_field(name="/send add\nlounge_name:[Lounge name]\nchannel:[Send Channel ([#○○○])]\nnormal_mention[War record mention setting(on/off)]\nrankup_notification:[Send rankup notification setting (on/off)]\nrankup_mention:[Rankup notification setting (on/off)]", value="The War Record send player add.\nIn addition, the Mention setting, when turned on, is set so that the ments go to the player who entered the command.\nAnd the entry of the rank-up notification field is not required.\n※Command cool time" + str(delay_time) + " seconds. (/send add, /send delete command common)", inline=False)
@@ -111,12 +117,17 @@ class other(commands.Cog):
             embed.add_field(name="/mkc lounge_name:[Lounge name]", value="Displays the player Mario Kart Central profile page.\n*Lounge name is not required.", inline=False)
             embed.add_field(name="/language language:[language setting（ja/en）]", value="Change default language.", inline=False)
             embed.add_field(name="/help", value="How to use command and Command list.", inline=False)
-
+            embed.add_field(name="/support", value="Display about support server.", inline=False)
+            embed.add_field(name="App「Add Send」", value="Add players to whom you want to send the results of the match.\nSee the image above for more information about this command.", inline=False)
+            fname="why_add_send_en-1.png"
+            file = discord.File(fp="./images/why_add_send_en-1.png",filename=fname,spoiler=False)
+            fname1="why_add_send_en-2.png"
+            file1 = discord.File(fp="./images/why_add_send_en-2.png",filename=fname1,spoiler=False)
         '''
         if interaction.guild.id == your_guild_id: # もしサーバー限定コマンドの実装があった場合の表記をした場合はここに書く
             embed.add_field(name="", value="", inline=False)
         '''
-        await interaction.response.send_message(embed=embed,ephemeral=False)
+        await interaction.response.send_message(files=[file, file1], embed=embed,ephemeral=False)
 
     # /fc
     @app_commands.command(name="fc",description="ユーザーのフレンドコードを表示します。 / User switch friend code display.")
